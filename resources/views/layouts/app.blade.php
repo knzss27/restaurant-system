@@ -26,8 +26,19 @@
             </a>
             <div class="d-flex align-items-center">
                 <a href="{{ url('/') }}#about-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">Бидний тухай</a>
+                <a href="{{ url('/') }}#contact-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">Холбоо барих</a>
                 <a href="{{ url('/') }}#map-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">📍 Салбар сонгох</a>
-                <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Нэвтрэх/Бүртгүүлэх</button>
+                <div class="d-flex gap-2">
+    <button class="btn btn-outline-danger btn-sm rounded-pill px-4"
+        onclick="window.location.href='{{ route('login') }}'">
+        Нэвтрэх
+    </button>
+
+    <button class="btn btn-danger btn-sm rounded-pill px-4"
+        onclick="window.location.href='{{ route('register') }}'">
+        Бүртгүүлэх
+    </button>
+</div>
             </div>
         </div>
     </nav>

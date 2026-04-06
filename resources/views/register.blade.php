@@ -36,7 +36,7 @@ body{
 
 <div class="card shadow">
 
-<h4 class="text-center mb-4">Бүртгүүлэх Пицца Хат</h4>
+<h4 class="text-center mb-4">Бүртгүүлэх</h4>
 
 <form>
 
@@ -78,8 +78,9 @@ body{
 
 </form>
 
-<p class="text-center mt-3">
-Хэрэв та бүртгэлтэй бол <a href="#">Нэвтрэх</a>
+<p class="text-center mt-3" >
+    Хэрэв та бүртгэлтэй бол 
+    <a href="{{ route('login') }}" style="color:#b3002d;">Нэвтрэх</a>
 </p>
 
 </div>

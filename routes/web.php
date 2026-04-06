@@ -16,4 +16,9 @@ Route::get('/menu', function () {
 });
 Route::get('/register', function () {
     return view('register');
-});
+})->name('register');
+
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
