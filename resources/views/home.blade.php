@@ -23,7 +23,7 @@
     <div class="container text-center">
         <h2 class="fw-bold mb-4">Холбоо барих</h2>
         <p>📞 Утас: 7555-5555 | 📧 И-мэйл: info@pizzahut.mn</p>
-    </div>
+    </div>git stash pop
 </section>-->
 
 <section id="map-section" class="py-5 bg-white">
