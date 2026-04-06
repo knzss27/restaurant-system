@@ -29,7 +29,7 @@
             <div class="col-6 col-md-3">
                 <a href="{{ url('/menu') }}?section=bagts" class="text-decoration-none group-item">
                     <div class="menu-circle-wrapper mx-auto mb-3">
-                        <img src="{{ asset('images/menu/bagts.png') }}" alt="Багц" class="img-fluid">
+                        <img src="{{ asset('images/set.svg') }}" alt="Багц" class="img-fluid">
                     </div>
                     <h6 class="fw-bold text-dark">Багц</h6>
                 </a>
@@ -39,7 +39,7 @@
             <div class="col-6 col-md-3">
                 <a href="{{ url('/menu') }}?section=pizza" class="text-decoration-none group-item">
                     <div class="menu-circle-wrapper mx-auto mb-3">
-                        <img src="{{ asset('images/menu/pizza.png') }}" alt="Пицца" class="img-fluid">
+                        <img src="{{ asset('images/pizza.svg') }}" alt="Пицца" class="img-fluid">
                     </div>
                     <h6 class="fw-bold text-dark">Пицца</h6>
                 </a>
@@ -49,7 +49,7 @@
             <div class="col-6 col-md-3">
                 <a href="{{ url('/menu') }}?section=burger" class="text-decoration-none group-item">
                     <div class="menu-circle-wrapper mx-auto mb-3">
-                        <img src="{{ asset('images/menu/burger.png') }}" alt="Бургер" class="img-fluid">
+                        <img src="{{ asset('images/burger.svg') }}" alt="Бургер" class="img-fluid">
                     </div>
                     <h6 class="fw-bold text-dark">Бургер</h6>
                 </a>
@@ -59,7 +59,7 @@
             <div class="col-6 col-md-3">
                 <a href="{{ url('/menu') }}?section=undaa" class="text-decoration-none group-item">
                     <div class="menu-circle-wrapper mx-auto mb-3">
-                        <img src="{{ asset('images/menu/drink.png') }}" alt="Ундаа" class="img-fluid">
+                        <img src="{{ asset('images/drinks.svg') }}" alt="Ундаа" class="img-fluid">
                     </div>
                     <h6 class="fw-bold text-dark">Ундаа</h6>
                 </a>
