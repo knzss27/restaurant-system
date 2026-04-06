@@ -22,7 +22,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="{{ asset('images/Pizza Hut_logo_desktop.svg') }}" alt="Pizza Hut Logo">
+                <img src="{{ asset('"C:\xampp\htdocs\restaurant-system\pizza.jpg"') }}" alt="Pizza Hut Logo">
             </a>
             <div class="d-flex align-items-center">
                 <a href="{{ url('/') }}#about-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">Бидний тухай</a>
