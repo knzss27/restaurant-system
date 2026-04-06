@@ -46,7 +46,7 @@
         }
 
         .required {
-            color: red;
+            color: rgb(255, 145, 0);
         }
 
         input[type="text"],
@@ -70,13 +70,13 @@
         .links a,
         .extra-link a,
         .register-text a {
-            color: #b3002d;
+            color: #ff9d01;
             text-decoration: underline;
         }
 
         .btn-login {
             width: 100%;
-            background: #c7002f;
+            background: #ff9d01;
             color: white;
             border: none;
             padding: 15px;
@@ -86,7 +86,7 @@
         }
 
         .btn-login:hover {
-            background: #a80028;
+            background: #ff9d01;
         }
 
         .divider {
@@ -119,7 +119,7 @@
                 <div class="form-group">
                     <label>
                         Нууц үг
-                        <a href="#" style="color:#b3002d;">Нэг удаагийн код илгээх</a>
+                        <a href="#" style="color:#ff9d01;">Нэг удаагийн код илгээх</a>
                         <span class="required">*</span>
                     </label>
                     <input type="password" name="password" placeholder="Нууц үг">

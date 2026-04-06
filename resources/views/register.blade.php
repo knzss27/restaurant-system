@@ -22,12 +22,12 @@ body{
 }
 
 .btn-custom{
-    background:#db182c;
+    background:#ec8e12;
     color:white;
 }
 
 .btn-custom:hover{
-    background:#da3044;
+    background:#ffa600;
 }
 </style>
 
@@ -80,7 +80,7 @@ body{
 
 <p class="text-center mt-3" >
     Хэрэв та бүртгэлтэй бол 
-    <a href="{{ route('login') }}" style="color:#b3002d;">Нэвтрэх</a>
+    <a href="{{ route('login') }}" style="color:#ff9d01;">Нэвтрэх</a>
 </p>
 
 </div>
