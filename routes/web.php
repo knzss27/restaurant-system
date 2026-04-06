@@ -14,3 +14,6 @@ Route::get('/menu', function () {
     $products = Product::all(); //
     return view('menu', compact('products'));
 });
+Route::get('/register', function () {
+    return view('register');
+});

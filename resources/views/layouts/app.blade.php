@@ -27,7 +27,7 @@
             <div class="d-flex align-items-center">
                 <a href="{{ url('/') }}#about-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">Бидний тухай</a>
                 <a href="{{ url('/') }}#map-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">📍 Салбар сонгох</a>
-                <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Нэвтрэх</button>
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Нэвтрэх/Бүртгүүлэх</button>
             </div>
         </div>
     </nav>
