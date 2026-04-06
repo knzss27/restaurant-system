@@ -19,12 +19,12 @@
     </div>
 </section>
 
-<section id="contact-section" class="py-5" style="background-color: #f8f9fa;">
+<!--<section id="contact-section" class="py-5" style="background-color: #f8f9fa;">
     <div class="container text-center">
         <h2 class="fw-bold mb-4">Холбоо барих</h2>
         <p>📞 Утас: 7555-5555 | 📧 И-мэйл: info@pizzahut.mn</p>
     </div>
-</section>
+</section>-->
 
 <section id="map-section" class="py-5 bg-white">
     <div class="container">
