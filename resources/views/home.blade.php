@@ -74,7 +74,7 @@
     </div>
 </section>
 
-<!-- Бидний тухай section -->
+
 <section id="about-section" class="py-5 bg-white border-top">
     <div class="container text-center py-4">
         <h2 class="fw-bold mb-4 text-danger text-uppercase">Бидний тухай</h2>
@@ -83,6 +83,7 @@
         </p>
     </div>
 </section>
+
 
 <!-- Газрын зураг section -->
 <section id="map-section" class="py-5 bg-light">
