@@ -9,6 +9,12 @@
         body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .navbar-brand img { width: 140px; }
         /* Чиний нэмсэн бусад ерөнхий CSS-үүд энд байж болно */
+        html {
+            scroll-behavior: smooth;
+        }
+        section {
+            scroll-margin-top: 80px;
+            }
     </style>
 </head>
 <body>
@@ -19,7 +25,9 @@
                 <img src="{{ asset('images/Pizza Hut_logo_desktop.svg') }}" alt="Pizza Hut Logo">
             </a>
             <div class="d-flex align-items-center">
-                <span class="me-3 d-none d-md-inline text-muted">Салбар сонгох</span>
+                <a href="{{ url('/') }}#about-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">Бидний тухай</a>
+                <a href="{{ url('/') }}#contact-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">Холбоо барих</a>
+                <a href="{{ url('/') }}#map-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-bold">📍 Салбар сонгох</a>
                 <button class="btn btn-outline-danger btn-sm rounded-pill px-4">Нэвтрэх</button>
             </div>
         </div>
@@ -38,9 +46,10 @@
                 </div>
                 <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
                     <h5 class="text-uppercase mb-4 fw-bold">Цэс</h5>
-                    <p><a href="{{ url('/menu') }}" class="text-white text-decoration-none">Онцлох багц</a></p>
-                    <p><a href="{{ url('/menu') }}" class="text-white text-decoration-none">Пицца</a></p>
-                    <p><a href="{{ url('/menu') }}" class="text-white text-decoration-none">Ундаа, Шүүс</a></p>
+                    <p><a href="{{ url('/menu') }}?section=bagts" class="text-white text-decoration-none">Онцлох багц</a></p>
+                    <p><a href="{{ url('/menu') }}?section=pizza" class="text-white text-decoration-none">Пицца</a></p>
+                    <p><a href="{{ url('/menu') }}?section=burger" class="text-white text-decoration-none">Бургер</a></p>
+                    <p><a href="{{ url('/menu') }}?section=undaa" class="text-white text-decoration-none">Ундаа, Шүүс</a></p>
                 </div>
                 <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                     <h5 class="text-uppercase mb-4 fw-bold">Холбоо барих</h5>

@@ -37,6 +37,9 @@
                 <a class="nav-link tab-link" onclick="openMenu(event, 'pizza')">Пицца</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link tab-link" onclick="openMenu(event, 'burger')">Бургер</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link tab-link" onclick="openMenu(event, 'undaa')">Ундаа</a>
             </li>
             <li class="nav-item">
@@ -93,6 +96,22 @@
                     @endforeach
                 </div>
             </section>
+            <section id="burger" class="menu-section">
+                <h4 class="fw-bold mb-4">🍔 Амтлаг Бургерүүд</h4>
+                <div class="row g-4">
+
+                    <div class="col-md-4 col-6">
+                        <div class="card product-card h-100">
+                            <img src="{{ asset('images/burger.png') }}" class="card-img-top" alt="Бургер">
+                            <div class="card-body text-center">
+                                <h6 class="fw-bold">Classic Beef Burger</h6>
+                                <p class="text-danger fw-bold mb-3">12,500₮</p>
+                                <button class="btn btn-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <section id="undaa" class="menu-section">
                 <h4 class="fw-bold mb-4">🥤 Ундаа, Шүүс</h4>
@@ -139,21 +158,44 @@
 @push('scripts')
 <script>
     function openMenu(evt, sectionName) {
-        // Бүх секшнийг нуух
+        // 1. Бүх секшнийг нуух
         var sections = document.getElementsByClassName("menu-section");
         for (var i = 0; i < sections.length; i++) {
             sections[i].classList.remove("active");
         }
 
-        // Бүх линкээс active классыг хасах
+        // 2. Бүх линкээс active классыг хасах
         var tabLinks = document.getElementsByClassName("tab-link");
         for (var i = 0; i < tabLinks.length; i++) {
             tabLinks[i].classList.remove("active");
         }
 
-        // Сонгосныг харуулах
-        document.getElementById(sectionName).classList.add("active");
-        evt.currentTarget.classList.add("active");
+        // 3. Сонгосныг харуулах
+        var targetSection = document.getElementById(sectionName);
+        if (targetSection) {
+            targetSection.classList.add("active");
+        }
+
+        // 4. Товчлуурыг идэвхтэй болгох
+        if (evt) {
+            evt.currentTarget.classList.add("active");
+        } else {
+            // Хэрэв URL-аас орж ирвэл тохирох товчлуурыг олоод active болгоно
+            var btn = document.querySelector(`[onclick*="'${sectionName}'"]`);
+            if (btn) btn.classList.add("active");
+        }
     }
+
+    // Хуудас ачаалагдахад URL-д байгаа section-ийг шалгах "Ухаалаг" хэсэг
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const section = urlParams.get('section');
+        
+        if (section) {
+            openMenu(null, section);
+            // Хэрэв дэлгэц дээр харагдахгүй байвал тийшээ гүйлгэх (Scroll)
+            document.getElementById(section).scrollIntoView();
+        }
+    };
 </script>
 @endpush
