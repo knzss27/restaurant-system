@@ -71,16 +71,18 @@
 
 <section id="about-section" class="py-5 bg-white border-top">
     <div class="container text-center py-4">
-         <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="{{ asset('images/crust_grill_logo.png') }}" alt="Crust&Grill Logo" style="width: 500px; height: auto;">
-            </a>
+        
+        <a class="navbar-brand d-inline-block mb-4" href="{{ url('/') }}">
+            <img src="{{ asset('images/crust_grill_logo.png') }}" 
+                 alt="Crust&Grill Logo" 
+                 class="img-fluid" 
+                 style="width: 100%; max-width: 600px; height: auto;">
+        </a>
+        
         <h2 class="fw-bold mb-4 text-danger text-uppercase">Бидний тухай</h2>
         
-        <p class="lead text-muted mx-auto" style="max-width: 800px
-            font-family:'Poppins', sans-serif;
-            color:#e63946;
-            font-weight:500;">
-            Crust&Grill = Сайхан амт + Сайхан mood 
+        <p class="lead text-muted mx-auto" style="max-width: 800px; font-family:'Poppins', sans-serif; color:#e63946; font-weight:500;">
+            Crust&Grill = Сайхан амт + Сайхан mood <br>
             Бид пиццаг шаржигнуулж, бургерыг шүүслэг болгож, 
             таны өдрийг илүү амттай болгоно. Найзуудтайгаа инээж, амттай хоол идэж, кайфтай цагийг өнгөрүүлэх хамгийн зөв газар бол Crust&Grill!
         </p>
