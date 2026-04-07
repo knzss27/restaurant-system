@@ -9,16 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up()
 {
     Schema::create('products', function (Blueprint $table) {
         $table->id();
-        $table->string('name');         // Хоолны нэр
-        $table->string('category');     // Ангилал (bagts, pizza, undaa, nemelt)
-        $table->integer('price');       // Үнэ
-        $table->string('image')->nullable(); // Зурагны зам эсвэл URL
-        $table->text('description')->nullable(); // Тайлбар
-        $table->timestamps();           // Үүсгэсэн, зассан хугацаа
+        $table->string('name');
+        $table->integer('price');
+        $table->string('category'); // bagts, pizza, undaa, nemelt
+        $table->string('image');
+        $table->timestamps();
     });
 }
 

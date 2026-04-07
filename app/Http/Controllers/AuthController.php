@@ -9,19 +9,32 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Нэвтрэх (Login) функц
+    // 1. НЭМЭХ ХЭСЭГ: Логин хуудсыг харуулах (GET хүсэлтэд зориулсан)
+    public function showLogin()
+    {
+        return view('auth.login'); // resources/views/auth/login.blade.php файл байгаа эсэхийг шалгаарай
+    }
+
+    // 2. НЭМЭХ ХЭСЭГ: Бүртгэлийн хуудсыг харуулах (GET хүсэлтэд зориулсан)
+    public function showRegister()
+    {
+        return view('register'); // resources/views/register.blade.php файл байгаа эсэхийг шалгаарай
+    }
+
+    // Нэвтрэх (Login) үйлдэл боловсруулах
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            // Нэвтэрсний дараа menu хуудас руу шилжүүлнэ
             return redirect()->intended('menu');
         }
 
-        return back()->withErrors(['email' => 'Мэдээлэл буруу байна']);
+        return back()->withErrors(['email' => 'Имэйл эсвэл нууц үг буруу байна']);
     }
 
-    // Бүртгүүлэх (Register) функц
+    // Бүртгүүлэх (Register) үйлдэл боловсруулах
     public function register(Request $request)
     {
         // 1. Validation (Шалгалт)
@@ -36,11 +49,18 @@ class AuthController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone' => $request->phone, // Database-д phone багана байгаа эсэхийг шалгаарай
+            'phone' => $request->phone, 
             'password' => Hash::make($request->password),
         ]);
 
-        // 3. Бүртгүүлсний дараа шууд нэвтрүүлэх эсвэл логин руу шилжүүлэх
+        // 3. Амжилттай болбол логин руу шилжүүлэх
         return redirect()->route('login')->with('success', 'Амжилттай бүртгүүллээ!');
+    }
+
+    // 3. НЭМЭХ ХЭСЭГ: Гарах (Logout)
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        return redirect('/menu');
     }
 }
