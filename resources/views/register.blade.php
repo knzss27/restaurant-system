@@ -35,54 +35,57 @@ body{
 <body>
 
 <div class="card shadow">
+    <h4 class="text-center mb-4">Бүртгүүлэх</h4>
 
-<h4 class="text-center mb-4">Бүртгүүлэх</h4>
+    <!-- 1. action болон method-ийг заавал нэмнэ -->
+    <form action="{{ route('register') }}" method="POST">
+        <!-- 2. Laravel-д зориулсан хамгаалалтын код заавал байх ёстой -->
+        @csrf 
 
-<form>
+        <div class="mb-3">
+            <label>Овог, Нэр *</label>
+            <!-- 3. name="name" нэмсэн -->
+            <input type="text" name="name" class="form-control" placeholder="Овог, Нэрээ бичнэ үү" required>
+        </div>
 
-<div class="mb-3">
-<label>Овог, Нэр *</label>
-<input type="text" class="form-control" placeholder="Овог, Нэрээ бичнэ үү">
-</div>
+        <div class="mb-3">
+            <label>Утасны дугаар *</label>
+            <div class="input-group">
+                <span class="input-group-text">976</span>
+                <!-- 4. name="phone" нэмсэн -->
+                <input type="text" name="phone" class="form-control" placeholder="Утасны дугаараа оруулна уу" required>
+            </div>
+        </div>
 
-<div class="mb-3">
-<label>Утасны дугаар *</label>
+        <div class="mb-3">
+            <label>И-Мэйл хаяг</label>
+            <!-- 5. name="email" нэмсэн -->
+            <input type="email" name="email" class="form-control" placeholder="И-Мэйл хаягаа оруулна уу" required>
+        </div>
 
-<div class="input-group">
-<span class="input-group-text">976</span>
-<input type="text" class="form-control" placeholder="Утасны дугаараа оруулна уу">
-</div>
+        <div class="mb-3">
+            <label>Нууц үг </label>
+            <!-- 6. name="password" нэмсэн -->
+            <input type="password" name="password" class="form-control" placeholder="Нууц үг" required>
+        </div>
 
-</div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="terms" value="1" required>
+            <label class="form-check-label">
+                Үйлчилгээний нөхцөл зөвшөөрөх
+            </label>
+        </div>
 
-<div class="mb-3">
-<label>И-Мэйл хаяг</label>
-<input type="email" class="form-control" placeholder="И-Мэйл хаягаа оруулна уу">
-</div>
+        <!-- 7. type="submit" байх ёстой -->
+        <button type="submit" class="btn btn-custom w-100">
+            Бүртгүүлэх
+        </button>
+    </form>
 
-<div class="mb-3">
-<label>Нууц үг </label>
-<input type="password" class="form-control" placeholder="Нууц үг">
-</div>
-
-<div class="form-check mb-3">
-<input class="form-check-input" type="checkbox">
-<label class="form-check-label">
-Үйлчилгээний нөхцөл зөвшөөрөх
-</label>
-</div>
-
-<button class="btn btn-custom w-100">
-Бүртгүүлэх
-</button>
-
-</form>
-
-<p class="text-center mt-3" >
-    Хэрэв та бүртгэлтэй бол 
-    <a href="{{ route('login') }}" style="color:#ff9d01;">Нэвтрэх</a>
-</p>
-
+    <p class="text-center mt-3" >
+        Хэрэв та бүртгэлтэй бол 
+        <a href="{{ route('login') }}" style="color:#ff9d01;">Нэвтрэх</a>
+    </p>
 </div>
 
 </body>
