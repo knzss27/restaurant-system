@@ -107,7 +107,6 @@
                                 $imagePath = str_starts_with($product->image, 'http') ? $product->image : asset($product->image);
                             @endphp
                             <img src="{{ $imagePath }}" class="card-img-top" alt="{{ $product->name }}">
-                            
                             <div class="card-body text-center d-flex flex-column pt-0">
                                 <span class="category-badge mb-1">{{ $product->category }}</span>
                                 <h6 class="fw-bold mb-1">{{ $product->name }}</h6>
