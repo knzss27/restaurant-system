@@ -2,379 +2,177 @@
 
 @section('content')
 <style>
-    /* Цэсний идэвхтэй төлөв */
+    /* Ерөнхий тохиргоо */
     .nav-link { color: #555; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; }
     .nav-link:hover { color: #ff9d01; }
     .nav-link.active { color: #ff9d01 !important; border-bottom: 3px solid #ff9d01; }
 
-    /* Бүтээгдэхүүний карт */
     .product-card { 
         transition: transform 0.3s ease; 
-        border: none; 
-        border-radius: 1.5rem; 
+        border: none; border-radius: 1.5rem; 
         box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-        overflow: hidden;
+        overflow: hidden; height: 100%;
     }
     .product-card:hover { transform: translateY(-5px); }
+    .product-card img { height: 180px; object-fit: contain; padding: 1rem; }
     
-    /* Зургийг харуулах тохиргоо */
-    .product-card img { 
-        height: 160px; 
-        object-fit: contain; 
-        padding: 1rem; 
-    }
-    
-    /* Секшнүүдийг нуух/харуулах */
     .menu-section { display: none; }
     .menu-section.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); } 
-        to { opacity: 1; transform: translateY(0); }
+    /* WARP & STEPPER EFFECT */
+    .cart-action-container {
+        position: relative;
+        height: 42px;
+        width: 100%;
+        perspective: 1000px;
     }
 
-    .cart-sidebar { position: sticky; top: 100px; border-radius: 1.5rem; }
+    .main-cart-btn {
+        background-color: transparent;
+        border: 2px solid #ff9d01;
+        color: #ff9d01;
+        width: 100%;
+        height: 100%;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stepper-warp {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #ff9d01;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5px;
+        opacity: 0;
+        transform: scale(0.5) rotateX(90deg);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none;
+    }
+
+    /* Hover хийхэд Warp эффект */
+    .cart-action-container:hover .main-cart-btn {
+        opacity: 0;
+        transform: scale(1.2) rotateX(-90deg);
+    }
+
+    .cart-action-container:hover .stepper-warp {
+        opacity: 1;
+        transform: scale(1) rotateX(0deg);
+        pointer-events: auto;
+    }
+
+    /* Segmented Stepper Style */
+    .step-btn {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+    .step-btn:hover { background: rgba(255, 255, 255, 0.4); }
+
+    .qty-display {
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        min-width: 30px;
+    }
+
+    .add-final-btn {
+        background: white;
+        color: #ff9d01;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.8rem;
+        margin-left: 5px;
+    }
 </style>
 
-<div class="bg-white border-bottom mb-4 shadow-sm">
-    <div class="container">
-        <ul class="nav nav-justified nav-underline py-2">
-            <li class="nav-item"><a class="nav-link tab-link active" onclick="openMenu(event, 'bagts')">Багц</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'pizza')">Пицца</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'burger')">Бургер</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'undaa')">Ундаа</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'nemelt')">Нэмэлт</a></li>
-        </ul>
-    </div>
-</div>
+<div class="container mt-4">
+    <ul class="nav justify-content-center mb-4 border-bottom">
+        <li class="nav-item"><a class="nav-link tab-link active" onclick="openMenu(event, 'bagts')">ОНЦЛОХ БАГЦ</a></li>
+        <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'pizza')">ПИЦЦА</a></li>
+        <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'burger')">БУРГЕР</a></li>
+        <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'undaa')">УНДАА</a></li>
+    </ul>
 
-<div class="container mb-5">
-    <div class="row g-4">
-        <main class="col-lg-9">
-            
-            <section id="bagts" class="menu-section active">
-                <h4 class="fw-bold mb-4">Онцлох багцууд</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/couple_set.svg') }}" class="card-img-top" alt="Хосын багц">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Хосын багц</h6>
-                                <p class="text-muted small mb-2">Дунд пицца, 2 Бургер, 2 Ундаа</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">55,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/friends_set.svg') }}" class="card-img-top" alt="Найзуудын багц">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Найзууд багц</h6>
-                                <p class="text-muted small mb-2">Том пицца, Тахианы далавч, 4 Ундаа</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">85,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/family_set.svg') }}" class="card-img-top" alt="Гэр бүлийн багц">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Гэр бүлийн багц</h6>
-                                <p class="text-muted small mb-2">Том пицца, 3 Бургер, Шарсан төмс, 2л Ундаа</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">95,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+    @php $categories = ['bagts' => 'Онцлох багц', 'pizza' => 'Пицца', 'burger' => 'Бургер', 'undaa' => 'Ундаа']; @endphp
 
-            <section id="pizza" class="menu-section">
-                <h4 class="fw-bold mb-4">Пицца</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/pepperoni.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Пепперони Пицца</h6>
-                                <p class="text-muted small mb-2">Сонгодог итали пепперони</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">28,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
+    @foreach($categories as $key => $title)
+        <div id="{{ $key }}" class="menu-section {{ $loop->first ? 'active' : '' }}">
+            <div class="row g-4">
+                @foreach($products->where('category', $key) as $product)
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card product-card">
+                            <img src="{{ asset($product->image) }}" class="card-img-top">
+                            <div class="card-body text-center">
+                                <h6 class="fw-bold mb-1">{{ $product->name }}</h6>
+                                <p class="text-danger fw-bold mb-3">{{ number_format($product->price) }}₮</p>
+                                
+                                <div class="cart-action-container">
+                                    <div class="main-cart-btn shadow-sm">Сагслах</div>
+                                    
+                                    <div class="stepper-warp">
+                                        <div class="d-flex align-items-center">
+                                            <button type="button" class="step-btn" onclick="updateQty(this, -1)">-</button>
+                                            <span class="qty-display mx-2">1</span>
+                                            <button type="button" class="step-btn" onclick="updateQty(this, 1)">+</button>
+                                        </div>
+                                        <form action="{{ route('cart.add', $product->id) }}" method="GET">
+                                            <input type="hidden" name="quantity" value="1" class="hidden-qty">
+                                            <input type="hidden" name="section" value="{{ $key }}">
+                                            <button type="submit" class="add-final-btn shadow-sm">Нэмэх</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/margherita.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Маргарита Пицца</h6>
-                                <p class="text-muted small mb-2">Шинэхэн бяслаг, лооль</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">24,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/meat_lovers.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Махны цуглуулга</h6>
-                                <p class="text-muted small mb-2">Үхэр, гахай, тахианы мах</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">32,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/hawaiian.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Хавайн Пицца</h6>
-                                <p class="text-muted small mb-2">Хан боргоцой, утсан мах</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">29,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/vegan.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Веган Пицца</h6>
-                                <p class="text-muted small mb-2">Шинэхэн ногооны холимог</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">26,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="burger" class="menu-section">
-                <h4 class="fw-bold mb-4">Амтлаг Бургер</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/standart_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Сонгодог Бургер</h6>
-                                <p class="text-muted small mb-2">Үхрийн мах, бяслаг</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">12,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/double_cheese.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Чизбургер</h6>
-                                <p class="text-muted small mb-2">Давхар чеддар бяслагтай</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">13,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/tusgai_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">BBQ Бургер</h6>
-                                <p class="text-muted small mb-2">Утсан соус, шарсан сонгино</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">15,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/chicken_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Тахиан махтай</h6>
-                                <p class="text-muted small mb-2">Шаржигнуур тахиа, майонез</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">11,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/double_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Double Tower</h6>
-                                <p class="text-muted small mb-2">Хоёр давхар мах, өндөг</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">19,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="undaa" class="menu-section">
-                <h4 class="fw-bold mb-4">Ундаа, Шүүс</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/cola_1.5L.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Coca Cola 1.5L</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">4,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/cola_0.5L.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Coca Cola 0.5L</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">2,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/lemonade.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Orange Juice</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">3,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/icedtea.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Lipton Iced Tea</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">3,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/water.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Цэвэр ус 0.5L</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">1,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="nemelt" class="menu-section">
-                <h4 class="fw-bold mb-4">Нэмэлт бүтээгдэхүүн</h4>
-                <div class="alert alert-warning border-0 shadow-sm rounded-4 text-center py-4">
-                    Одоогоор нэмэлт бүтээгдэхүүн оруулаагүй байна.
-                </div>
-            </section>
-
-        </main>
-
-        <aside class="col-lg-3">
-            <div class="card cart-sidebar border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <h5 class="fw-bold mb-4">Таны сагс</h5>
-                    <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" class="img-fluid mb-3 px-4 opacity-50" alt="Empty Cart">
-                    <p class="text-muted small">Сагс одоогоор хоосон байна.</p>
-                    <hr class="my-4 opacity-25">
-                    <div class="d-flex justify-content-between mb-4">
-                        <span class="text-muted">Нийт дүн:</span>
-                        <span class="fw-bold text-danger fs-5">0₮</span>
-                    </div>
-                    <button class="btn btn-secondary w-100 py-2 rounded-pill disabled">Захиалах</button>
-                </div>
+                @endforeach
             </div>
-        </aside>
-    </div>
+        </div>
+    @endforeach
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    function openMenu(evt, sectionName) {
-        // 1. Бүх секшнийг нуух
-        var sections = document.getElementsByClassName("menu-section");
-        for (var i = 0; i < sections.length; i++) {
-            sections[i].classList.remove("active");
-        }
-
-        // 2. Бүх линкээс active классыг хасах
-        var tabLinks = document.getElementsByClassName("tab-link");
-        for (var i = 0; i < tabLinks.length; i++) {
-            tabLinks[i].classList.remove("active");
-        }
-
-        // 3. Сонгосныг харуулах
-        var targetSection = document.getElementById(sectionName);
-        if (targetSection) {
-            targetSection.classList.add("active");
-        }
-
-        // 4. Товчлуурыг идэвхтэй болгох
-        if (evt) {
-            evt.currentTarget.classList.add("active");
-        } else {
-            var btn = document.querySelector(`[onclick*="'${sectionName}'"]`);
-            if (btn) btn.classList.add("active");
-        }
+    function updateQty(btn, change) {
+        const container = btn.closest('.stepper-warp');
+        const display = container.querySelector('.qty-display');
+        const input = container.querySelector('.hidden-qty');
+        let current = parseInt(display.innerText);
+        current += change;
+        if (current < 1) current = 1;
+        display.innerText = current;
+        input.value = current;
     }
 
-    // Хуудас ачаалагдахад URL шалгах
+    function openMenu(evt, sectionName) {
+        document.querySelectorAll(".menu-section").forEach(s => s.classList.remove("active"));
+        document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+        document.getElementById(sectionName).classList.add("active");
+        if (evt) evt.currentTarget.classList.add("active");
+    }
+
     window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const section = urlParams.get('section');
-        
-        if (section) {
-            openMenu(null, section);
-            setTimeout(() => {
-                const el = document.getElementById(section);
-                if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
-        }
-    };
+        const section = new URLSearchParams(window.location.search).get('section');
+        if (section) openMenu(null, section);
+    }
 </script>
 @endpush
