@@ -13,20 +13,34 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($productId);
         $cart = session()->get('cart', []);
+        $quantity = max(1, (int) $request->input('quantity', 1));
+
+        session()->put('order_fulfillment', [
+            'type' => $request->input('fulfillment_type', 'delivery'),
+            'address' => $request->input('delivery_address'),
+        ]);
 
         if (isset($cart[$productId])) {
-            $cart[$productId]['quantity']++;
+            $cart[$productId]['quantity'] += $quantity;
         } else {
             $cart[$productId] = [
                 'name' => $product->name,
                 'price' => $product->price,
                 'image' => $product->image,
-                'quantity' => 1,
+                'quantity' => $quantity,
             ];
         }
 
         session()->put('cart', $cart);
-        return response()->json(['success' => true, 'cart_count' => count($cart)]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'cart_count' => array_sum(array_column($cart, 'quantity')),
+            ]);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Бүтээгдэхүүн сагсанд нэмэгдлээ!');
     }
 
     public function remove(Request $request, $productId)
@@ -62,7 +76,13 @@ class CartController extends Controller
         if (empty($cart)) {
             return redirect()->route('cart.index');
         }
-        return view('checkout', compact('cart'));
+
+        $fulfillment = session()->get('order_fulfillment', [
+            'type' => 'delivery',
+            'address' => '',
+        ]);
+
+        return view('checkout', compact('cart', 'fulfillment'));
     }
 
     public function placeOrder(Request $request)
@@ -70,6 +90,7 @@ class CartController extends Controller
         $request->validate([
             'delivery_address' => 'required|string',
             'phone' => 'required|string',
+            'payment_method' => 'required|in:card,qpay',
             'notes' => 'nullable|string',
         ]);
 
@@ -85,6 +106,7 @@ class CartController extends Controller
             'status' => 'pending',
             'delivery_address' => $request->delivery_address,
             'phone' => $request->phone,
+            'payment_method' => $request->payment_method,
             'notes' => $request->notes,
         ]);
 
