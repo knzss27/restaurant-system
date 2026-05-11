@@ -2,65 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // 1. НЭМЭХ ХЭСЭГ: Логин хуудсыг харуулах (GET хүсэлтэд зориулсан)
-    public function showLogin()
+    public function showRegisterForm()
     {
-        return view('auth.login'); // resources/views/auth/login.blade.php файл байгаа эсэхийг шалгаарай
+        return view('register');
     }
 
-    // 2. НЭМЭХ ХЭСЭГ: Бүртгэлийн хуудсыг харуулах (GET хүсэлтэд зориулсан)
-    public function showRegister()
-    {
-        return view('register'); // resources/views/register.blade.php файл байгаа эсэхийг шалгаарай
-    }
-
-    // Нэвтрэх (Login) үйлдэл боловсруулах
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            // Нэвтэрсний дараа menu хуудас руу шилжүүлнэ
-            return redirect()->intended('menu');
-        }
-
-        return back()->withErrors(['email' => 'Имэйл эсвэл нууц үг буруу байна']);
-    }
-
-    // Бүртгүүлэх (Register) үйлдэл боловсруулах
     public function register(Request $request)
     {
-        // 1. Validation (Шалгалт)
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'phone' => 'required', 
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // 2. Өгөгдлийн санд хадгалах
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone, 
-            'password' => Hash::make($request->password),
+        $user = User::create([
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+            'email' => $data['email'],
+            'password' => $data['password'],
         ]);
 
-        // 3. Амжилттай болбол логин руу шилжүүлэх
-        return redirect()->route('login')->with('success', 'Амжилттай бүртгүүллээ!');
+        Auth::login($user);
+
+        return redirect()->intended('/');
     }
 
-    // 3. НЭМЭХ ХЭСЭГ: Гарах (Logout)
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'login' => ['nullable', 'string'],
+            'email' => ['nullable', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $login = $request->input('login') ?: $request->input('email');
+        $password = $request->input('password');
+
+        if (!$login) {
+            return back()->withErrors([
+                'email' => 'И-мэйл эсвэл утасны дугаар шаардлагатай.',
+            ])->onlyInput('email');
+        }
+
+        $user = filter_var($login, FILTER_VALIDATE_EMAIL)
+            ? User::where('email', $login)->first()
+            : User::where('phone', $login)->first();
+
+        if (!$user || !Hash::check($password, $user->password)) {
+            return back()->withErrors([
+                'email' => 'И-мэйл эсвэл нууц үг буруу байна.',
+            ])->onlyInput('email');
+        }
+
+        Auth::login($user, $request->filled('remember'));
+
+        return redirect()->intended('/');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
-        return redirect('/menu');
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }

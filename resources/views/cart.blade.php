@@ -1,146 +1,110 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="fw-bold mb-4">Миний сагс</h2>
+    <div class="container my-5">
+        <h1 class="mb-4">Таны сагс</h1>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
-                @if(session('cart') && count(session('cart')) > 0)
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Хоол</th>
-                                    <th>Үнэ</th>
-                                    <th>Тоо</th>
-                                    <th>Нийт</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $total = 0; @endphp
-                                @foreach(session('cart') as $id => $details)
-                                    @php $total += $details['price'] * $details['quantity']; @endphp
-                                    <tr data-id="{{ $id }}">
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ asset($details['image']) }}" width="50" class="rounded me-3">
-                                                <span class="fw-bold">{{ $details['name'] }}</span>
-                                            </div>
-                                        </td>
-                                        <td>{{ number_format($details['price']) }}₮</td>
-                                        <td><span class="badge bg-light text-dark p-2">{{ $details['quantity'] }} ш</span></td>
-                                        <td class="fw-bold text-danger">{{ number_format($details['price'] * $details['quantity']) }}₮</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-link text-muted remove-from-cart">
-                                                <i class="bi bi-x-circle"></i> Устгах
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-center py-5">
-                        <h5>Таны сагс хоосон байна.</h5>
-                        <a href="{{ url('/menu') }}" class="btn btn-danger rounded-pill mt-3">Цэс рүү буцах</a>
-                    </div>
-                @endif
+        @if (empty($cart))
+            <div class="text-center py-5">
+                <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" class="img-fluid mb-3 px-4 opacity-50"
+                    alt="Empty Cart" style="max-width: 200px;">
+                <h4>Сагс хоосон байна</h4>
+                <p class="text-muted">Бүтээгдэхүүн нэмэхийн тулд <a href="{{ route('menu') }}">цэс</a> руу очно уу.</p>
             </div>
-
-            @if(isset($recommendations) && count($recommendations) > 0)
-            <div class="recommendation-container mt-5">
-                <h5 class="fw-bold mb-4">Танд санал болгох</h5>
-                <div class="carousel-wrapper position-relative">
-                    <div id="recSlider" class="d-flex overflow-hidden" style="scroll-behavior: smooth;">
-                        @foreach($recommendations as $product)
-                            <div class="rec-item p-2">
-                                <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                                    <img src="{{ asset($product->image) }}" class="mx-auto mb-2" style="height: 100px; object-fit: contain; width: 100%;">
-                                    <h6 class="fw-bold small mb-1">{{ $product->name }}</h6>
-                                    <p class="text-danger fw-bold small mb-2">{{ number_format($product->price) }}₮</p>
-                                    <a href="{{ route('cart.add', $product->id) }}" class="btn btn-outline-danger btn-sm rounded-pill w-100">
-                                        + Нэмэх
-                                    </a>
+        @else
+            <div class="row">
+                <div class="col-lg-8">
+                    @foreach ($cart as $productId => $item)
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <img src="{{ $item['image'] }}" class="img-fluid rounded" alt="{{ $item['name'] }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h5>{{ $item['name'] }}</h5>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <p class="mb-0">{{ number_format($item['price']) }}₮</p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" class="form-control quantity-input"
+                                            data-product-id="{{ $productId }}" value="{{ $item['quantity'] }}"
+                                            min="1">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-danger btn-sm remove-item"
+                                            data-product-id="{{ $productId }}">Хасах</button>
+                                    </div>
                                 </div>
                             </div>
-                        @endforeach
+                        </div>
+                    @endforeach
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Захиалгын дэлгэрэнгүй</h5>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span>Нийт:</span>
+                                <span
+                                    id="total-amount">{{ number_format(array_sum(array_map(function ($item) {return $item['price'] * $item['quantity'];}, $cart))) }}₮</span>
+                            </div>
+                            <a href="{{ route('checkout') }}" class="btn btn-success w-100 mt-3">Захиалах</a>
+                        </div>
                     </div>
-                    <button class="slider-btn prev" onclick="scrollSlider(-1)"><i class="bi bi-chevron-left"></i></button>
-                    <button class="slider-btn next" onclick="scrollSlider(1)"><i class="bi bi-chevron-right"></i></button>
                 </div>
             </div>
-            @endif
-        </div>
-
-        @if(session('cart') && count(session('cart')) > 0)
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
-                <h5 class="fw-bold mb-4">Төлбөрийн мэдээлэл</h5>
-                <div class="d-flex justify-content-between mb-4">
-                    <span class="fs-5 fw-bold">Нийт дүн:</span>
-                    <span class="fs-5 fw-bold text-danger">{{ number_format($total) }}₮</span>
-                </div>
-                <a href="#" class="btn btn-danger w-100 py-3 rounded-pill fw-bold">Захиалга өгөх</a>
-            </div>
-        </div>
         @endif
     </div>
-</div>
 
-<style>
-    .carousel-wrapper { padding: 0 40px; }
-    #recSlider { display: flex; gap: 15px; scroll-snap-type: x mandatory; overflow-x: hidden; }
-    .rec-item { flex: 0 0 calc(25% - 12px); min-width: 180px; }
-    .slider-btn {
-        position: absolute; top: 50%; transform: translateY(-50%);
-        width: 40px; height: 40px; background: white; border: 1px solid #ddd;
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        z-index: 10; cursor: pointer;
-    }
-    .slider-btn.prev { left: 0; }
-    .slider-btn.next { right: 0; }
-</style>
-
-{{-- Устгах үйлдлийн Script-ийг энд нэмэв --}}
-@push('scripts')
-<script type="text/javascript">
-    $(document).ready(function() {
-        
-        // УСТГАХ ҮЙЛДЭЛ
-        $(".remove-from-cart").click(function (e) {
-            e.preventDefault();
-
-            var ele = $(this);
-
-            if(confirm("Та энэ хоолыг сагснаас устгахдаа итгэлтэй байна уу?")) {
-                $.ajax({
-                    url: '{{ route("cart.remove") }}', // Энэ route зөв эсэхийг шалгаарай
-                    method: "DELETE",
-                    data: {
-                        _token: '{{ csrf_token() }}', 
-                        id: ele.parents("tr").attr("data-id")
-                    },
-                    success: function (response) {
-                        window.location.reload();
-                    },
-                    error: function (xhr) {
-                        alert("Алдаа гарлаа. Дахин оролдоно уу.");
-                    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update quantity
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    const quantity = this.value;
+                    fetch(`/cart/update/${productId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                quantity: quantity
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload(); // Simple reload to update total
+                            }
+                        });
                 });
-            }
-        });
+            });
 
-        // Carousel Slider функц
-        window.scrollSlider = function(direction) {
-            const slider = document.getElementById('recSlider');
-            const scrollAmount = slider.offsetWidth / 2;
-            slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-        }
-    });
-</script>
-@endpush
+            // Remove item
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    fetch(`/cart/remove/${productId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            }
+                        });
+                });
+            });
+        });
+    </script>
 @endsection

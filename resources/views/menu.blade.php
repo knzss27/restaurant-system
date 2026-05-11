@@ -113,10 +113,10 @@
 
     @php $categories = ['bagts' => 'Онцлох багц', 'pizza' => 'Пицца', 'burger' => 'Бургер', 'undaa' => 'Ундаа']; @endphp
 
-    @foreach($categories as $key => $title)
+    @foreach(['bagts' => 1, 'pizza' => 2, 'burger' => 3, 'undaa' => 4] as $key => $categoryId)
         <div id="{{ $key }}" class="menu-section {{ $loop->first ? 'active' : '' }}">
             <div class="row g-4">
-                @foreach($products->where('category', $key) as $product)
+                @foreach($products->where('category_id', $categoryId) as $product)
                     <div class="col-6 col-md-4 col-lg-3">
                         <div class="card product-card">
                             <img src="{{ asset($product->image) }}" class="card-img-top">
@@ -133,7 +133,8 @@
                                             <span class="qty-display mx-2">1</span>
                                             <button type="button" class="step-btn" onclick="updateQty(this, 1)">+</button>
                                         </div>
-                                        <form action="{{ route('cart.add', $product->id) }}" method="GET">
+                                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                            @csrf
                                             <input type="hidden" name="quantity" value="1" class="hidden-qty">
                                             <input type="hidden" name="section" value="{{ $key }}">
                                             <button type="submit" class="add-final-btn shadow-sm">Нэмэх</button>
