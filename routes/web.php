@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Models\Product;
-
+use App\Http\Controllers\CartController;
 // --- 1. ХЭРЭГЛЭГЧИЙН ХЭСЭГ (GUEST/USER) ---
 
 // Нүүр хуудас
@@ -37,3 +37,6 @@ Route::prefix('admin')->group(function () {
     // Хоол устгах (URL: /admin/delete-product/{id})
     Route::delete('/delete-product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
 });
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/add-to-cart/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+Route::delete('/remove-from-cart', [CartController::class, 'remove'])->name('cart.remove');
