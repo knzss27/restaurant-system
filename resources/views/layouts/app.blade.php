@@ -1,51 +1,59 @@
 <!DOCTYPE html>
 <html lang="mn">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crust&Grill Mongolia</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <style>
-        /* 1. Ерөнхий тохиргоо */
-        body { 
-            background-color: #f8f9fa; 
-            font-family: Arial, Helvetica, sans-serif; 
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* 2. Navbar болон Брэндинг */
-        .navbar-brand img { width: 140px; }
-        
-        /* 3. Өнгөний тохиргоо */
+        .navbar-brand img {
+            width: 140px;
+        }
+
         .btn-danger {
-            background-color: #ff9d01 !important; 
+            background-color: #ff9d01 !important;
             border-color: #ff9d01 !important;
             color: white !important;
         }
+
         .btn-outline-danger {
-            color: #ff9d01 !important; 
+            color: #ff9d01 !important;
             border-color: #ff9d01 !important;
         }
+
         .btn-outline-danger:hover {
             background-color: #ff9d01 !important;
             color: white !important;
         }
+
         .text-danger {
             color: #ff9d01 !important;
         }
 
-        html { scroll-behavior: smooth; }
-        section { scroll-margin-top: 80px; }
-        .rounded-4 { border-radius: 1.5rem !important; }
+        html {
+            scroll-behavior: smooth;
+        }
 
-        /* --- PRELOADER STYLE (Чиний тааруулсан хэмнэл) --- */
+        section {
+            scroll-margin-top: 80px;
+        }
+
+        /* PRELOADER WITH TOPPINGS */
         #preloader {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-color: #ffffff;
             display: flex;
             justify-content: center;
@@ -54,53 +62,61 @@
             transition: opacity 0.8s ease-in-out;
         }
 
-        .loader-wrapper { text-align: center; }
-
-        .loader-logo { 
-            width: 180px; 
-            margin-bottom: 5px; 
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            animation: syncPulse 3s infinite ease-in-out; 
+        .loader-logo {
+            width: 180px;
+            animation: syncPulse 3s infinite ease-in-out;
         }
 
         .pizza-loader {
-            width: 70px; 
-            height: 70px; 
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            border: 6px solid #d1914b; 
+            border: 6px solid #d1914b;
             box-sizing: border-box;
             --c: no-repeat radial-gradient(farthest-side, #d64123 94%, #0000);
             --b: no-repeat radial-gradient(farthest-side, #000 94%, #0000);
             background:
                 var(--c) 10px 14px, var(--b) 5px 14px, var(--c) 32px 20px, var(--b) 26px 14px,
                 var(--c) 10px 42px, var(--b) 10px 30px, var(--c) 32px 0px, var(--b) 46px 28px,
-                var(--c) 42px 40px, var(--b) 28px 44px, #f6d353; 
+                var(--c) 42px 40px, var(--b) 28px 44px, #f6d353;
             background-size: 14px 14px, 6px 6px;
-            /* Чиний тааруулсан 5s хугацаа */
             animation: syncPulse 3s infinite ease-in-out, pizzaFill 5s infinite ease-in-out;
         }
 
         @keyframes syncPulse {
-            0%, 100% { transform: scale(0.92); opacity: 0.4; }
-            50% { transform: scale(1); opacity: 1; }
+
+            0%,
+            100% {
+                transform: scale(0.92);
+                opacity: 0.4;
+            }
+
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         @keyframes pizzaFill {
-            0% { -webkit-mask: conic-gradient(#0000 0, #000 0); }
-            60%, 70% { -webkit-mask: conic-gradient(#0000 360deg, #000 0); }
-            100% { -webkit-mask: conic-gradient(#0000 360deg, #000 0); }
+            0% {
+                -webkit-mask: conic-gradient(#0000 0, #000 0);
+            }
+
+            60%,
+            70% {
+                -webkit-mask: conic-gradient(#0000 360deg, #000 0);
+            }
+
+            100% {
+                -webkit-mask: conic-gradient(#0000 360deg, #000 0);
+            }
         }
 
-        .loader-hidden { 
-            opacity: 0; 
-            pointer-events: none; 
+        .loader-hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .loader-container { display: flex; justify-content: center; }
-
-        /* --- ХӨВДӨГ САГС STYLE --- */
         .floating-cart {
             position: fixed;
             bottom: 30px;
@@ -113,27 +129,33 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             text-decoration: none;
-            transition: transform 0.2s;
         }
+
         .cart-count {
             position: absolute;
-            top: -5px; right: -5px;
+            top: -5px;
+            right: -5px;
             background-color: #e31837;
-            color: white; border-radius: 50%;
-            padding: 2px 7px; font-size: 12px; font-weight: bold;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 12px;
+            font-weight: bold;
             border: 2px solid white;
         }
     </style>
 </head>
+
 <body>
 
     <div id="preloader">
-        <div class="loader-wrapper">
-            <img src="{{ asset('images/crust_grill_logo.png') }}" alt="Logo" class="loader-logo">
-            <div class="loader-container">
+        <div class="loader-wrapper text-center">
+            <img src="{{ asset('images/crust_grill_logo.png') }}" alt="Logo"
+                class="loader-logo mb-2 d-block mx-auto">
+            <div class="d-flex justify-content-center">
                 <div class="pizza-loader"></div>
             </div>
         </div>
@@ -145,11 +167,42 @@
                 <img src="{{ asset('images/crust_grill_logo.png') }}" alt="Crust&Grill Logo">
             </a>
             <div class="d-flex align-items-center">
-                <a href="{{ url('/') }}#about-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-normal">Бидний тухай</a>
-                <a href="{{ url('/') }}#map-section" class="me-3 d-none d-md-inline text-muted text-decoration-none small fw-normal">Салбар сонгох</a>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-danger btn-sm rounded-pill px-4" onclick="window.location.href='{{ route('login') }}'">Нэвтрэх</button>
-                    <button class="btn btn-danger btn-sm rounded-pill px-4" onclick="window.location.href='{{ route('register') }}'">Бүртгүүлэх</button>
+                <a href="{{ url('/') }}#about-section"
+                    class="me-3 d-none d-md-inline text-muted text-decoration-none small">Бидний тухай</a>
+                <a href="{{ url('/') }}#map-section"
+                    class="me-3 d-none d-md-inline text-muted text-decoration-none small">Салбар сонгох</a>
+                <div class="d-flex gap-2 align-items-center">
+                    @if (Route::has('login'))
+                        @auth
+                            <div class="dropdown">
+                                <button class="btn btn-outline-danger btn-sm rounded-pill px-4 dropdown-toggle"
+                                    type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle me-1"></i> {{ Auth::user()->name }}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ route('dashboard') }}">Хяналтын самбар</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Профайл</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger">Гарах</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        @else
+                            <a href="{{ route('login') }}"
+                                class="btn btn-outline-danger btn-sm rounded-pill px-4">Нэвтрэх</a>
+
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}"
+                                    class="btn btn-danger btn-sm rounded-pill px-4 text-white">Бүртгүүлэх</a>
+                            @endif
+                        @endauth
+                    @endif
                 </div>
             </div>
         </div>
@@ -159,40 +212,40 @@
         @yield('content')
     </div>
 
-    <a href="{{ route('cart.index') }}" class="floating-cart shadow">
-        <i class="bi bi-cart3 fs-4"></i>
-        @if(session('cart') && count(session('cart')) > 0)
-            <span class="cart-count">
-                @php 
-                    $quantity = 0;
-                    foreach(session('cart') as $item) { $quantity += $item['quantity']; }
-                @endphp
-                {{ $quantity }}
-            </span>
-        @endif
-    </a>
+    @php
+        $qty = 0;
+        if (session('cart')) {
+            foreach (session('cart') as $item) {
+                $qty += $item['quantity'];
+            }
+        }
+    @endphp
+    @if ($qty > 0)
+        <a href="{{ route('cart.index') }}" class="floating-cart shadow">
+            <i class="bi bi-cart3 fs-4"></i><span class="cart-count">{{ $qty }}</span>
+        </a>
+    @endif
 
     <footer class="text-white pt-5 pb-4 mt-5" style="background-color: #1a1a1a;">
         <div class="container text-center text-md-start">
             <hr class="mb-4 border-light opacity-25">
             <div class="text-center">
-                <p class="mb-0 small text-light opacity-50">© 2026 Crust&Grill Mongolia. Бүх эрх хуулиар хамгаалагдав.</p>
+                <p class="mb-0 small text-light opacity-50">© 2026 Crust&Grill Mongolia. Бүх эрх хуулиар хамгаалагдав.
+                </p>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        // Preloader control
-        window.addEventListener("load", function () {
+        window.addEventListener("load", function() {
             const loader = document.getElementById("preloader");
             setTimeout(() => {
                 loader.classList.add("loader-hidden");
-            }, 500); 
+            }, 500);
         });
     </script>
-
     @stack('scripts')
 </body>
+
 </html>
