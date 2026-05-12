@@ -2,125 +2,122 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class CartController extends Controller
 {
-    public function add(Request $request, $productId)
-    {
-        $product = Product::findOrFail($productId);
-        $cart = session()->get('cart', []);
-        $quantity = max(1, (int) $request->input('quantity', 1));
+    // ... таны бусад методууд энд байна ...
 
-        session()->put('order_fulfillment', [
-            'type' => $request->input('fulfillment_type', 'delivery'),
-            'address' => $request->input('delivery_address'),
-        ]);
-
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] += $quantity;
-        } else {
-            $cart[$productId] = [
-                'name' => $product->name,
-                'price' => $product->price,
-                'image' => $product->image,
-                'quantity' => $quantity,
-            ];
-        }
-
-        session()->put('cart', $cart);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'cart_count' => array_sum(array_column($cart, 'quantity')),
-            ]);
-        }
-
-        return redirect()->route('cart.index')->with('success', 'Бүтээгдэхүүн сагсанд нэмэгдлээ!');
-    }
-
-    public function remove(Request $request, $productId)
-    {
-        $cart = session()->get('cart', []);
-        if (isset($cart[$productId])) {
-            unset($cart[$productId]);
-            session()->put('cart', $cart);
-        }
-        return response()->json(['success' => true, 'cart_count' => count($cart)]);
-    }
-
-    public function update(Request $request, $productId)
-    {
-        $quantity = $request->quantity;
-        $cart = session()->get('cart', []);
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] = $quantity;
-            session()->put('cart', $cart);
-        }
-        return response()->json(['success' => true]);
-    }
-
-    public function index()
-    {
-        $cart = session()->get('cart', []);
-        return view('cart', compact('cart'));
-    }
-
-    public function checkout()
-    {
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('cart.index');
-        }
-
-        $fulfillment = session()->get('order_fulfillment', [
-            'type' => 'delivery',
-            'address' => '',
-        ]);
-
-        return view('checkout', compact('cart', 'fulfillment'));
-    }
-
+    /**
+     * Захиалга байршуулах
+     */
     public function placeOrder(Request $request)
     {
-        $request->validate([
-            'delivery_address' => 'required|string',
-            'phone' => 'required|string',
-            'payment_method' => 'required|in:card,qpay',
-            'notes' => 'nullable|string',
-        ]);
-
-        $cart = session()->get('cart', []);
-        $total = 0;
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
+        $cart = session('cart', []);
 
         $order = Order::create([
-            'user_id' => auth()->id(),
-            'total_amount' => $total,
-            'status' => 'pending',
+            'user_id'          => auth()->id(),
             'delivery_address' => $request->delivery_address,
-            'phone' => $request->phone,
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes,
+            'phone'            => $request->phone,
+            'payment_method'   => $request->payment_method,
+            'notes'            => $request->notes,
         ]);
 
         foreach ($cart as $productId => $item) {
             OrderItem::create([
-                'order_id' => $order->id,
+                'order_id'   => $order->id,
                 'product_id' => $productId,
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-                'subtotal' => $item['price'] * $item['quantity'],
+                'quantity'   => $item['quantity'],
+                'price'      => $item['price'],
+                'subtotal'   => $item['price'] * $item['quantity'],
             ]);
         }
 
         session()->forget('cart');
-        return redirect()->route('orders.show', $order->id)->with('success', 'Захиалга амжилттай үүслээ!');
+
+        return redirect()->route('orders.show', $order->id)
+            ->with('success', 'Захиалга амжилттай үүслээ');
+    }
+
+    // =========================================================
+    // QPay
+    // =========================================================
+
+    /**
+     * QPay invoice үүсгэж QR буцаана
+     */
+    public function qpayCreate(Request $request)
+    {
+        // 1. QPay access token авах
+        $tokenRes = Http::withBasicAuth(
+            config('services.qpay.username'),
+            config('services.qpay.password')
+        )->post('https://merchant.qpay.mn/v2/auth/token');
+
+        $token = $tokenRes->json('access_token');
+
+        // 2. Invoice үүсгэх
+        $invoiceRes = Http::withToken($token)
+            ->post('https://merchant.qpay.mn/v2/invoice', [
+                'invoice_code'             => config('services.qpay.invoice_code'),
+                'sender_invoice_no'        => 'ORDER-' . time(),
+                'invoice_receiver_code'    => 'terminal',
+                'invoice_description'      => 'Crust & Grill захиалга',
+                'amount'                   => $request->amount,
+                'callback_url'             => route('checkout.qpay.callback'),
+            ]);
+
+        $data = $invoiceRes->json();
+
+        if (! isset($data['invoice_id'])) {
+            return response()->json(['error' => 'QPay invoice үүсгэхэд алдаа гарлаа'], 500);
+        }
+
+        // QR image нь qPay-с base64 PNG хэлбэрээр ирнэ
+        return response()->json([
+            'invoice_id' => $data['invoice_id'],
+            'qr_image'   => $data['qr_image'],   // base64 PNG
+        ]);
+    }
+
+    /**
+     * Төлбөр хийгдсэн эсэхийг шалгана
+     */
+    public function qpayCheck(Request $request)
+    {
+        // Access token авах
+        $tokenRes = Http::withBasicAuth(
+            config('services.qpay.username'),
+            config('services.qpay.password')
+        )->post('https://merchant.qpay.mn/v2/auth/token');
+
+        $token = $tokenRes->json('access_token');
+
+        // Төлбөр шалгах
+        $result = Http::withToken($token)
+            ->post('https://merchant.qpay.mn/v2/payment/check', [
+                'object_type'  => 'INVOICE',
+                'object_id'    => $request->invoice_id,
+                'offset'       => ['page_number' => 1, 'page_limit' => 1],
+            ]);
+
+        $data = $result->json();
+
+        return response()->json([
+            'paid' => isset($data['count']) && $data['count'] > 0,
+        ]);
+    }
+
+    /**
+     * QPay callback (webhook) — QPay сервер дуудна
+     */
+    public function qpayCallback(Request $request)
+    {
+        // Энд QPay-с ирсэн мэдээллийг боловсруулж
+        // Order-ийн төлөв шинэчилж болно
+        return response()->json(['status' => 'ok']);
     }
 }
