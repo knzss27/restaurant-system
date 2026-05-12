@@ -108,7 +108,7 @@
                             @endphp
                             <img src="{{ $imagePath }}" class="card-img-top" alt="{{ $product->name }}">
                             <div class="card-body text-center d-flex flex-column pt-0">
-                                <span class="category-badge mb-1">{{ $product->category }}</span>
+                                <span class="category-badge mb-1">{{ $product->category?->name }}</span>
                                 <h6 class="fw-bold mb-1">{{ $product->name }}</h6>
                                 
                                 <div class="mt-auto">
@@ -147,7 +147,7 @@
                         @foreach(['bagts' => 'Багц', 'pizza' => 'Пицца', 'burger' => 'Бургер', 'undaa' => 'Ундаа'] as $key => $label)
                         <div class="d-flex justify-content-between mb-2 small">
                             <span class="text-muted">{{ $label }}:</span>
-                            <span class="fw-bold">{{ $products->where('category', $key)->count() }}</span>
+                            <span class="fw-bold">{{ $products->where('category_id', $loop->iteration)->count() }}</span>
                         </div>
                         @endforeach
                     </div>

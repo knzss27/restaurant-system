@@ -2,379 +2,545 @@
 
 @section('content')
 <style>
-    /* Цэсний идэвхтэй төлөв */
+    /* Ерөнхий тохиргоо */
     .nav-link { color: #555; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; }
     .nav-link:hover { color: #ff9d01; }
     .nav-link.active { color: #ff9d01 !important; border-bottom: 3px solid #ff9d01; }
 
-    /* Бүтээгдэхүүний карт */
     .product-card { 
         transition: transform 0.3s ease; 
-        border: none; 
-        border-radius: 1.5rem; 
+        border: none; border-radius: 1.5rem; 
         box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-        overflow: hidden;
+        overflow: hidden; height: 100%;
     }
     .product-card:hover { transform: translateY(-5px); }
+    .product-card img { height: 180px; object-fit: contain; padding: 1rem; }
     
-    /* Зургийг харуулах тохиргоо */
-    .product-card img { 
-        height: 160px; 
-        object-fit: contain; 
-        padding: 1rem; 
-    }
-    
-    /* Секшнүүдийг нуух/харуулах */
     .menu-section { display: none; }
     .menu-section.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); } 
-        to { opacity: 1; transform: translateY(0); }
+    /* WARP & STEPPER EFFECT */
+    .cart-action-container {
+        position: relative;
+        height: 42px;
+        width: 100%;
+        perspective: 1000px;
     }
 
-    .cart-sidebar { position: sticky; top: 100px; border-radius: 1.5rem; }
+    .main-cart-btn {
+        background-color: transparent;
+        border: 2px solid #ff9d01;
+        color: #ff9d01;
+        width: 100%;
+        height: 100%;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stepper-warp {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #ff9d01;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5px;
+        opacity: 0;
+        transform: scale(0.5) rotateX(90deg);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: none;
+    }
+
+    /* Hover хийхэд Warp эффект */
+    .cart-action-container:hover .main-cart-btn {
+        opacity: 0;
+        transform: scale(1.2) rotateX(-90deg);
+    }
+
+    .cart-action-container:hover .stepper-warp {
+        opacity: 1;
+        transform: scale(1) rotateX(0deg);
+        pointer-events: auto;
+    }
+
+    /* Segmented Stepper Style */
+    .step-btn {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+    .step-btn:hover { background: rgba(255, 255, 255, 0.4); }
+
+    .qty-display {
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        min-width: 30px;
+    }
+
+    .add-final-btn {
+        background: white;
+        color: #ff9d01;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.8rem;
+        margin-left: 5px;
+    }
+
+    .order-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+        z-index: 2000;
+    }
+
+    .order-modal-backdrop.show {
+        display: flex;
+    }
+
+    .order-modal {
+        width: min(100%, 560px);
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+        position: relative;
+        overflow: visible;
+    }
+
+    .order-modal-close {
+        position: absolute;
+        top: -14px;
+        right: -14px;
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 50%;
+        background: #242424;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        line-height: 1;
+        z-index: 2;
+    }
+
+    .order-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid #ececec;
+    }
+
+    .order-tab {
+        min-height: 64px;
+        border: 0;
+        background: #f1f2f4;
+        color: #6c6f75;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .order-tab.active {
+        background: #fff;
+        color: #ff9d01;
+    }
+
+    .order-tab-icon {
+        width: 30px;
+        height: 30px;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+
+    .order-modal-body {
+        padding: 28px 32px 32px;
+    }
+
+    .order-modal-title {
+        color: #242424;
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+    .order-address-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        border: 1px solid #d9dde5;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .order-address-row input {
+        border: 0;
+        min-width: 0;
+        padding: 13px 16px;
+        outline: 0;
+    }
+
+    .order-location-btn {
+        border: 0;
+        background: #ff9d01;
+        color: #fff;
+        padding: 0 18px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .order-location-btn:hover {
+        background: #ff9d01;
+    }
+
+    .order-confirm-btn {
+        background: #ff9d01;
+        border: 0;
+        color: #fff;
+        border-radius: 999px;
+        padding: 12px 22px;
+        font-weight: 800;
+        min-width: 150px;
+    }
+
+    .order-confirm-btn:hover {
+        background: #e28500;
+    }
+
+    .pickup-panel {
+        display: none;
+        border: 1px solid #ececec;
+        border-radius: 6px;
+        padding: 14px 16px;
+        background: #fafafa;
+    }
+
+    .pickup-panel.show {
+        display: block;
+    }
+
+    .erdenet-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: -2px 0 18px;
+    }
+
+    .place-chip {
+        border: 1px solid #f1d6ad;
+        background: #fff8ed;
+        color: #9a5a00;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .place-chip:hover {
+        background: #ff9d01;
+        border-color: #ff9d01;
+        color: #fff;
+    }
+
+    @media (max-width: 576px) {
+        .order-modal-body {
+            padding: 22px 18px 24px;
+        }
+
+        .order-address-row {
+            grid-template-columns: 1fr;
+        }
+
+        .order-location-btn {
+            min-height: 46px;
+        }
+    }
 </style>
 
-<div class="bg-white border-bottom mb-4 shadow-sm">
-    <div class="container">
-        <ul class="nav nav-justified nav-underline py-2">
-            <li class="nav-item"><a class="nav-link tab-link active" onclick="openMenu(event, 'bagts')">Багц</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'pizza')">Пицца</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'burger')">Бургер</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'undaa')">Ундаа</a></li>
-            <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'nemelt')">Нэмэлт</a></li>
-        </ul>
-    </div>
+<div class="container mt-4">
+    <ul class="nav justify-content-center mb-4 border-bottom">
+        <li class="nav-item"><a class="nav-link tab-link active" onclick="openMenu(event, 'bagts')">ОНЦЛОХ БАГЦ</a></li>
+        <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'pizza')">ПИЦЦА</a></li>
+        <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'burger')">БУРГЕР</a></li>
+        <li class="nav-item"><a class="nav-link tab-link" onclick="openMenu(event, 'undaa')">УНДАА</a></li>
+    </ul>
+
+    @php $categories = ['bagts' => 'Онцлох багц', 'pizza' => 'Пицца', 'burger' => 'Бургер', 'undaa' => 'Ундаа']; @endphp
+
+    @foreach(['bagts' => 1, 'pizza' => 2, 'burger' => 3, 'undaa' => 4] as $key => $categoryId)
+        <div id="{{ $key }}" class="menu-section {{ $loop->first ? 'active' : '' }}">
+            <div class="row g-4">
+                @foreach($products->where('category_id', $categoryId) as $product)
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card product-card">
+                            <img src="{{ asset($product->image) }}" class="card-img-top">
+                            <div class="card-body text-center">
+                                <h6 class="fw-bold mb-1">{{ $product->name }}</h6>
+                                <p class="text-danger fw-bold mb-3">{{ number_format($product->price) }}₮</p>
+                                
+                                <div class="cart-action-container">
+                                    <div class="main-cart-btn shadow-sm">Сагслах</div>
+                                    
+                                    <div class="stepper-warp">
+                                        <div class="d-flex align-items-center">
+                                            <button type="button" class="step-btn" onclick="updateQty(this, -1)">-</button>
+                                            <span class="qty-display mx-2">1</span>
+                                            <button type="button" class="step-btn" onclick="updateQty(this, 1)">+</button>
+                                        </div>
+                                        <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="quantity" value="1" class="hidden-qty">
+                                            <input type="hidden" name="section" value="{{ $key }}">
+                                            <button type="submit" class="add-final-btn shadow-sm">Нэмэх</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endforeach
 </div>
 
-<div class="container mb-5">
-    <div class="row g-4">
-        <main class="col-lg-9">
-            
-            <section id="bagts" class="menu-section active">
-                <h4 class="fw-bold mb-4">Онцлох багцууд</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/couple_set.svg') }}" class="card-img-top" alt="Хосын багц">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Хосын багц</h6>
-                                <p class="text-muted small mb-2">Дунд пицца, 2 Бургер, 2 Ундаа</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">55,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/friends_set.svg') }}" class="card-img-top" alt="Найзуудын багц">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Найзууд багц</h6>
-                                <p class="text-muted small mb-2">Том пицца, Тахианы далавч, 4 Ундаа</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">85,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/family_set.svg') }}" class="card-img-top" alt="Гэр бүлийн багц">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Гэр бүлийн багц</h6>
-                                <p class="text-muted small mb-2">Том пицца, 3 Бургер, Шарсан төмс, 2л Ундаа</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">95,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+<div class="order-modal-backdrop" id="orderModal" aria-hidden="true">
+    <div class="order-modal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+        <button type="button" class="order-modal-close" id="closeOrderModal" aria-label="Хаах">
+            <i class="bi bi-x-lg"></i>
+        </button>
 
-            <section id="pizza" class="menu-section">
-                <h4 class="fw-bold mb-4">Пицца</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/pepperoni.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Пепперони Пицца</h6>
-                                <p class="text-muted small mb-2">Сонгодог итали пепперони</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">28,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/margherita.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Маргарита Пицца</h6>
-                                <p class="text-muted small mb-2">Шинэхэн бяслаг, лооль</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">24,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/meat_lovers.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Махны цуглуулга</h6>
-                                <p class="text-muted small mb-2">Үхэр, гахай, тахианы мах</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">32,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/hawaiian.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Хавайн Пицца</h6>
-                                <p class="text-muted small mb-2">Хан боргоцой, утсан мах</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">29,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/vegan.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Веган Пицца</h6>
-                                <p class="text-muted small mb-2">Шинэхэн ногооны холимог</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">26,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div class="order-tabs">
+            <button type="button" class="order-tab active" data-fulfillment="delivery">
+                <span class="order-tab-icon"><i class="bi bi-truck"></i></span>
+                Хүргэлтээр авах
+            </button>
+            <button type="button" class="order-tab" data-fulfillment="pickup">
+                <span class="order-tab-icon"><i class="bi bi-shop"></i></span>
+                Очих авах
+            </button>
+        </div>
 
-            <section id="burger" class="menu-section">
-                <h4 class="fw-bold mb-4">Амтлаг Бургер</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/standart_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Сонгодог Бургер</h6>
-                                <p class="text-muted small mb-2">Үхрийн мах, бяслаг</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">12,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/double_cheese.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Чизбургер</h6>
-                                <p class="text-muted small mb-2">Давхар чеддар бяслагтай</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">13,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/tusgai_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">BBQ Бургер</h6>
-                                <p class="text-muted small mb-2">Утсан соус, шарсан сонгино</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">15,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/chicken_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Тахиан махтай</h6>
-                                <p class="text-muted small mb-2">Шаржигнуур тахиа, майонез</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">11,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/double_burger.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Double Tower</h6>
-                                <p class="text-muted small mb-2">Хоёр давхар мах, өндөг</p>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">19,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Сагсанд нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div class="order-modal-body">
+            <p class="order-modal-title mb-3" id="orderModalTitle">
+                Бид танд амтат пиццагаар үйлчлэхэд бэлэн байна!
+            </p>
+            <p class="text-muted mb-3" id="deliveryHelp">
+                Хаяг оруулж захиалга эхлүүлэх. Жич: Та сайтар шалгаж зөв хаяг оруулна уу
+            </p>
 
-            <section id="undaa" class="menu-section">
-                <h4 class="fw-bold mb-4">Ундаа, Шүүс</h4>
-                <div class="row g-4">
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/cola_1.5L.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Coca Cola 1.5L</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">4,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/cola_0.5L.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Coca Cola 0.5L</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">2,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/lemonade.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Orange Juice</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">3,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/icedtea.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Lipton Iced Tea</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">3,000₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <img src="{{ asset('images/menu/water.svg') }}" class="card-img-top">
-                            <div class="card-body text-center d-flex flex-column pt-0">
-                                <h6 class="fw-bold mb-1">Цэвэр ус 0.5L</h6>
-                                <div class="mt-auto">
-                                    <p class="text-danger fw-bold mb-3">1,500₮</p>
-                                    <button class="btn btn-outline-danger w-100 rounded-pill btn-sm">Нэмэх</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="nemelt" class="menu-section">
-                <h4 class="fw-bold mb-4">Нэмэлт бүтээгдэхүүн</h4>
-                <div class="alert alert-warning border-0 shadow-sm rounded-4 text-center py-4">
-                    Одоогоор нэмэлт бүтээгдэхүүн оруулаагүй байна.
-                </div>
-            </section>
-
-        </main>
-
-        <aside class="col-lg-3">
-            <div class="card cart-sidebar border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <h5 class="fw-bold mb-4">Таны сагс</h5>
-                    <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" class="img-fluid mb-3 px-4 opacity-50" alt="Empty Cart">
-                    <p class="text-muted small">Сагс одоогоор хоосон байна.</p>
-                    <hr class="my-4 opacity-25">
-                    <div class="d-flex justify-content-between mb-4">
-                        <span class="text-muted">Нийт дүн:</span>
-                        <span class="fw-bold text-danger fs-5">0₮</span>
-                    </div>
-                    <button class="btn btn-secondary w-100 py-2 rounded-pill disabled">Захиалах</button>
-                </div>
+            <div class="order-address-row mb-3" id="addressPanel">
+                <input type="text" id="deliveryAddress" list="erdenetPlaceOptions" placeholder="Эрдэнэт хотын хаяг эсвэл газар оруулах">
+                <button type="button" class="order-location-btn" id="locateMeBtn">
+                    <i class="bi bi-geo-alt-fill"></i> Байршил олох
+                </button>
             </div>
-        </aside>
+
+            <datalist id="erdenetPlaceOptions">
+                <option value="Эрдэнэт үйлдвэр">
+                <option value="Баян-Өндөр зах">
+                <option value="Номин их дэлгүүр, Эрдэнэт">
+                <option value="Орхон молл">
+                <option value="Хангарьд палас">
+                <option value="Эрдэнэт хотын төв талбай">
+                <option value="Эрдэнэт автобусны буудал">
+                <option value="Уурхайчин соёлын ордон">
+                <option value="Мэдээлэл холбооны сүлжээ, Эрдэнэт">
+                <option value="Орхон аймгийн Нэгдсэн эмнэлэг">
+            </datalist>
+
+            <div class="erdenet-suggestions" id="erdenetSuggestions">
+                <button type="button" class="place-chip" data-address="Эрдэнэт үйлдвэр">Эрдэнэт үйлдвэр</button>
+                <button type="button" class="place-chip" data-address="Баян-Өндөр зах">Баян-Өндөр зах</button>
+                <button type="button" class="place-chip" data-address="Номин их дэлгүүр, Эрдэнэт">Номин</button>
+                <button type="button" class="place-chip" data-address="Орхон молл">Орхон молл</button>
+                <button type="button" class="place-chip" data-address="Хангарьд палас">Хангарьд палас</button>
+                <button type="button" class="place-chip" data-address="Эрдэнэт хотын төв талбай">Төв талбай</button>
+            </div>
+
+            <div class="pickup-panel mb-3" id="pickupPanel">
+                <strong>Crust&Grill салбар дээрээс авах</strong>
+                <p class="text-muted small mb-0">Захиалгаа баталгаажуулаад, бэлтгэгдсэний дараа салбараас очиж аваарай.</p>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="button" class="order-confirm-btn" id="confirmOrderMode">Сагсанд нэмэх</button>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    function openMenu(evt, sectionName) {
-        // 1. Бүх секшнийг нуух
-        var sections = document.getElementsByClassName("menu-section");
-        for (var i = 0; i < sections.length; i++) {
-            sections[i].classList.remove("active");
-        }
+    let pendingCartForm = null;
+    let selectedFulfillment = 'delivery';
 
-        // 2. Бүх линкээс active классыг хасах
-        var tabLinks = document.getElementsByClassName("tab-link");
-        for (var i = 0; i < tabLinks.length; i++) {
-            tabLinks[i].classList.remove("active");
-        }
-
-        // 3. Сонгосныг харуулах
-        var targetSection = document.getElementById(sectionName);
-        if (targetSection) {
-            targetSection.classList.add("active");
-        }
-
-        // 4. Товчлуурыг идэвхтэй болгох
-        if (evt) {
-            evt.currentTarget.classList.add("active");
-        } else {
-            var btn = document.querySelector(`[onclick*="'${sectionName}'"]`);
-            if (btn) btn.classList.add("active");
-        }
+    function updateQty(btn, change) {
+        const container = btn.closest('.stepper-warp');
+        const display = container.querySelector('.qty-display');
+        const input = container.querySelector('.hidden-qty');
+        let current = parseInt(display.innerText);
+        current += change;
+        if (current < 1) current = 1;
+        display.innerText = current;
+        input.value = current;
     }
 
-    // Хуудас ачаалагдахад URL шалгах
+    function openMenu(evt, sectionName) {
+        document.querySelectorAll(".menu-section").forEach(s => s.classList.remove("active"));
+        document.querySelectorAll(".tab-link").forEach(l => l.classList.remove("active"));
+        document.getElementById(sectionName).classList.add("active");
+        if (evt) evt.currentTarget.classList.add("active");
+    }
+
     window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const section = urlParams.get('section');
-        
-        if (section) {
-            openMenu(null, section);
-            setTimeout(() => {
-                const el = document.getElementById(section);
-                if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
+        const section = new URLSearchParams(window.location.search).get('section');
+        if (section) openMenu(null, section);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('orderModal');
+        const closeBtn = document.getElementById('closeOrderModal');
+        const confirmBtn = document.getElementById('confirmOrderMode');
+        const addressInput = document.getElementById('deliveryAddress');
+        const addressPanel = document.getElementById('addressPanel');
+        const pickupPanel = document.getElementById('pickupPanel');
+        const deliveryHelp = document.getElementById('deliveryHelp');
+        const locateBtn = document.getElementById('locateMeBtn');
+        const erdenetSuggestions = document.getElementById('erdenetSuggestions');
+
+        document.querySelectorAll('.stepper-warp form').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                pendingCartForm = form;
+                modal.classList.add('show');
+                modal.setAttribute('aria-hidden', 'false');
+                addressInput.focus();
+            });
+        });
+
+        document.querySelectorAll('.order-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                selectedFulfillment = this.dataset.fulfillment;
+
+                document.querySelectorAll('.order-tab').forEach(item => item.classList.remove('active'));
+                this.classList.add('active');
+
+                const isPickup = selectedFulfillment === 'pickup';
+                addressPanel.style.display = isPickup ? 'none' : 'grid';
+                deliveryHelp.style.display = isPickup ? 'none' : 'block';
+                erdenetSuggestions.style.display = isPickup ? 'none' : 'flex';
+                pickupPanel.classList.toggle('show', isPickup);
+            });
+        });
+
+        document.querySelectorAll('.place-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                addressInput.value = this.dataset.address;
+                addressInput.classList.remove('is-invalid');
+            });
+        });
+
+        closeBtn.addEventListener('click', closeOrderModal);
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) closeOrderModal();
+        });
+
+        locateBtn.addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                addressInput.value = 'Таны төхөөрөмж байршил олох боломжгүй байна.';
+                return;
+            }
+
+            locateBtn.disabled = true;
+            locateBtn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Олж байна...';
+
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    addressInput.value = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+                    locateBtn.disabled = false;
+                    locateBtn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Байршил олох';
+                },
+                () => {
+                    addressInput.value = 'Байршил авах боломжгүй байна. Хаягаа гараар оруулна уу.';
+                    locateBtn.disabled = false;
+                    locateBtn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Байршил олох';
+                }
+            );
+        });
+
+        confirmBtn.addEventListener('click', function() {
+            if (!pendingCartForm) return;
+
+            if (selectedFulfillment === 'delivery' && !addressInput.value.trim()) {
+                addressInput.focus();
+                addressInput.classList.add('is-invalid');
+                return;
+            }
+
+            const formData = new FormData(pendingCartForm);
+            formData.set('fulfillment_type', selectedFulfillment);
+            formData.set('delivery_address', selectedFulfillment === 'delivery' ? addressInput.value.trim() : 'pickup');
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Нэмж байна...';
+
+            fetch(pendingCartForm.action, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': pendingCartForm.querySelector('input[name="_token"]').value,
+                },
+                body: formData,
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Cart request failed');
+                    return response.json();
+                })
+                .then(() => {
+                    window.location.href = '{{ route('cart.index') }}';
+                })
+                .catch(() => {
+                    pendingCartForm.submit();
+                });
+        });
+
+        addressInput.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+
+        function closeOrderModal() {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            pendingCartForm = null;
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Сагсанд нэмэх';
         }
-    };
+    });
 </script>
 @endpush

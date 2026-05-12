@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SHTM restaurant - Laravel System</title>
     
     <!-- 1. Bootstrap CSS холбох -->
@@ -110,14 +111,14 @@
                 <section id="pizza" class="menu-section">
     <h4 class="fw-bold mb-4">🍕 Пиццанууд</h4>
     <div class="row g-4">
-        @foreach($products->where('category', 'pizza') as $product)
+        @foreach($products->where('category_id', 2) as $product)
         <div class="col-md-4 col-6">
             <div class="card product-card h-100">
                 <img src="{{ $product->image }}" class="card-img-top">
                 <div class="card-body text-center">
                     <h6 class="fw-bold">{{ $product->name }}</h6>
                     <p class="text-danger fw-bold mb-3">{{ number_format($product->price) }}₮</p>
-                    <button class="btn btn-danger w-100 rounded-pill btn-sm">Сонгох</button>
+                    <button class="btn btn-danger w-100 rounded-pill btn-sm add-to-cart" data-product-id="{{ $product->id }}">Сонгох</button>
                 </div>
             </div>
         </div>
@@ -190,6 +191,30 @@
             document.getElementById(sectionName).classList.add("active");
             evt.currentTarget.classList.add("active");
         }
+
+        // Add to cart functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    fetch(`/cart/add/${productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Бүтээгдэхүүн сагсанд нэмэгдлээ!');
+                            // Update cart count if needed
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });
+        });
     </script>
 </body>
 </html>
