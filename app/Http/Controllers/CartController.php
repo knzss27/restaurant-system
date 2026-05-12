@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Mail\OrderSuccessMail; // Нэмэх
+use Illuminate\Support\Facades\Mail; // Нэмэх
 
 class CartController extends Controller
 {
@@ -119,6 +121,8 @@ class CartController extends Controller
                 'subtotal' => $item['price'] * $item['quantity'],
             ]);
         }
+        Mail::to(auth()->user()->email)->send(new OrderSuccessMail($order));
+    
 
         session()->forget('cart');
         return redirect()->route('orders.show', $order->id)->with('success', 'Захиалга амжилттай үүслээ!');
