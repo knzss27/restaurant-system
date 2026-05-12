@@ -341,7 +341,7 @@
             </button>
             <button type="button" class="order-tab" data-fulfillment="pickup">
                 <span class="order-tab-icon"><i class="bi bi-shop"></i></span>
-                Очих авч авах
+                Очих авах
             </button>
         </div>
 
